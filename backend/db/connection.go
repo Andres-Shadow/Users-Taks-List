@@ -2,22 +2,36 @@ package db
 
 import (
 	"log"
+	"time"
 
-	"gorm.io/driver/postgres"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 )
 
-// COMANDO DOCKER
-// docker run --name postgres -e POSTGRES_USER=andres -e POSTGRES_PASSWORD=andres1 -p 5432:5432 -d postgres
-var DSN = "host=localhost user=andres password=andres1 dbname=gorm port=5432"
-var DB *gorm.DB
+var DATABASE *gorm.DB
 
 func DBConnection() {
-	var error error
-	DB, error = gorm.Open(postgres.Open(DSN), &gorm.Config{})
-	if error != nil {
-		log.Fatal(error)
-	} else {
-		log.Println("BD CONECTADA")
+	host := "localhost"
+
+	dbPassword := "andres_1"
+	dbUser := "root"
+
+	var dsn = dbUser + ":" + dbPassword + "@tcp(" + host + ":3306)/users_tasks?charset=utf8mb4&parseTime=True&loc=Local"
+
+	for {
+		var err error
+		DATABASE, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+			NamingStrategy: schema.NamingStrategy{
+				SingularTable: true,
+			},
+		})
+		if err != nil {
+			log.Println("Failed to connect to database. Retrying in 10 seconds...")
+			time.Sleep(10 * time.Second) // Wait for 5 seconds before retrying
+		} else {
+			log.Println("DB Connected")
+			break // Exit the loop once the connection is successful
+		}
 	}
 }

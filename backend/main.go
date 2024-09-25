@@ -13,8 +13,9 @@ import (
 func main() {
 
 	db.DBConnection()
-	db.DB.AutoMigrate(models.Task{})
-	db.DB.AutoMigrate(models.User{})
+	db.DATABASE.AutoMigrate(models.Task{})
+	db.DATABASE.AutoMigrate(models.User{})
+
 	r := mux.NewRouter()
 	// Index route
 	r.HandleFunc("/", routes.HomeHandler)
@@ -29,5 +30,5 @@ func main() {
 	r.HandleFunc("/tasks", routes.CreateTaskHandler).Methods("POST")
 	r.HandleFunc("/tasks/{id}", routes.DeleteTaskHandler).Methods("DELETE")
 
-	http.ListenAndServe(":8083", r)
+	http.ListenAndServe(":9090", r)
 }

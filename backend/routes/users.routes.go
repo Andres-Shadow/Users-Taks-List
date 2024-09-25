@@ -11,14 +11,14 @@ import (
 
 func GetUsersHandler(w http.ResponseWriter, r *http.Request) {
 	var users []models.User
-	db.DB.Find(&users)
+	db.DATABASE.Find(&users)
 	json.NewEncoder(w).Encode(&users)
 }
 
 func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	var user models.User
-	db.DB.First(&user, params["id"])
+	db.DATABASE.First(&user, params["id"])
 
 	if user.ID == 0 {
 		w.WriteHeader(http.StatusNotFound)
@@ -26,7 +26,7 @@ func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db.DB.Model(&user).Association("Tasks").Find(&user.Tasks)
+	db.DATABASE.Model(&user).Association("Tasks").Find(&user.Tasks)
 
 	json.NewEncoder(w).Encode(&user)
 }
@@ -34,7 +34,7 @@ func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 func PostUserHandler(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	json.NewDecoder(r.Body).Decode(&user)
-	createdUser := db.DB.Create(&user)
+	createdUser := db.DATABASE.Create(&user)
 	err := createdUser.Error
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -46,7 +46,7 @@ func PostUserHandler(w http.ResponseWriter, r *http.Request) {
 func DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	var user models.User
-	db.DB.First(&user, params["id"])
+	db.DATABASE.First(&user, params["id"])
 
 	if user.ID == 0 {
 		w.WriteHeader(http.StatusNotFound)
@@ -57,6 +57,6 @@ func DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
 	//BORRA PERO DEJA LA FECHA DE ELIMINADO
 	//db.DB.Delete(&user)
 	//BORRA DE VERDAD
-	db.DB.Unscoped().Delete(&user)
+	db.DATABASE.Unscoped().Delete(&user)
 	w.WriteHeader(http.StatusOK)
 }
