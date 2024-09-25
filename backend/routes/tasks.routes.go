@@ -30,6 +30,18 @@ func GetTaskHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&task)
 }
 
+func GetUserTasksHandler(w http.ResponseWriter, r *http.Request) {
+	var tasks []models.Task
+	params := mux.Vars(r)
+	db.DATABASE.Where("user_id = ?", params["id"]).Find(&tasks)
+	if len(tasks) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("Tasks not found"))
+		return
+	}
+	json.NewEncoder(w).Encode(&tasks)
+}
+
 func CreateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	var task models.Task
 	json.NewDecoder(r.Body).Decode(&task)
