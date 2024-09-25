@@ -8,6 +8,7 @@ import (
 	"users_task_backend/routes"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -30,5 +31,16 @@ func main() {
 	r.HandleFunc("/tasks", routes.CreateTaskHandler).Methods("POST")
 	r.HandleFunc("/tasks/{id}", routes.DeleteTaskHandler).Methods("DELETE")
 
-	http.ListenAndServe(":9090", r)
+	// Configurar CORS
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"}, // Permitir todas las fuentes
+		AllowedMethods:   []string{"GET", "POST", "DELETE", "PUT", "OPTIONS"},
+		AllowedHeaders:   []string{"*"},
+		AllowCredentials: true,
+	})
+
+	// Envolver el router con el middleware de CORS
+	handler := c.Handler(r)
+
+	http.ListenAndServe(":9090", handler)
 }

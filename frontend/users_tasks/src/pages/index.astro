@@ -1,0 +1,11 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Card from "../components/Card.astro";
+import { UserList } from "../components/UserList.jsx";
+---
+
+<Layout title="Welcome to Astro.">
+  <main>
+    <UserList client:load/>
+  </main>
+</Layout>
