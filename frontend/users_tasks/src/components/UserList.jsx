@@ -96,11 +96,9 @@ export const UserList = () => {
     setNewTask((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle adding a new task
+  /// Handle adding a new task
   const handleAddTask = (userId) => {
-    // Aquí puedes implementar la lógica para agregar la tarea, como hacer un POST a tu API.
     console.log(`Adding task for user ${userId}:`, newTask);
-    // Armar el cuerpo de la solicitud POST
     const body = JSON.stringify({
       Title: newTask.title,
       Description: newTask.description,
@@ -121,18 +119,39 @@ export const UserList = () => {
         throw new Error("Failed to add task");
       })
       .then((data) => {
-        // Actualiza el estado de las tareas
+        // Asegúrate de que prevTasks[userId] siempre sea un array
         setTasks((prevTasks) => ({
           ...prevTasks,
-          [userId]: [...prevTasks[userId], data],
+          [userId]: [...(prevTasks[userId] || []), data], // Inicializa como array si no existe
         }));
       });
+
     hideAddTaskForm(); // Oculta el formulario tras agregar la tarea
   };
 
   const handleUserFormChange = (e) => {
     const { name, value } = e.target;
     setNewUser((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const deleteUser = (userId) => {
+    console.log("Deleting user:", userId);
+    fetch(`http://localhost:9090/users/${userId}`, {
+      method: "DELETE",
+    })
+      .then((res) => {
+        if (res.ok) {
+          setUsers(users.filter((user) => user.ID !== userId));
+          setTasks((prevTasks) => {
+            const newTasks = { ...prevTasks };
+            delete newTasks[userId];
+            return newTasks;
+          });
+        } else {
+          console.error("Failed to delete user:", res);
+        }
+      })
+      .catch((err) => console.error(err));
   };
 
   const handleAddUser = (e) => {
@@ -239,6 +258,12 @@ export const UserList = () => {
                     onClick={() => showAddTaskForm(user.ID)}
                   >
                     Agregar Tarea
+                  </button>
+                  <button
+                    className="bg-red-500 text-white rounded-full px-4 py-1 hover:bg-red-600 transition-colors"
+                    onClick={() => deleteUser(user.ID)}
+                  >
+                    Eliminar Usuario
                   </button>
                 </td>
               </tr>
