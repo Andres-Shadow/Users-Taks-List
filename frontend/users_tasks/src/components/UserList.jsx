@@ -6,7 +6,11 @@ export const UserList = () => {
   const [expandedUser, setExpandedUser] = useState(null);
   const [showTaskForm, setShowTaskForm] = useState(null);
   const [newTask, setNewTask] = useState({ title: "", description: "" });
-  const [newUser, setNewUser] = useState({ firstname: "", lastname: "", email: "" });
+  const [newUser, setNewUser] = useState({
+    firstname: "",
+    lastname: "",
+    email: "",
+  });
 
   // Fetch users on component mount
   useEffect(() => {
@@ -29,15 +33,18 @@ export const UserList = () => {
   const fetchTasks = async (userId) => {
     console.log("Fetching tasks for user:", userId);
     if (!tasks[userId]) {
-      await fetch(`http://localhost:9090/tasks/user/${userId}`)
-        .then((res) => res.json())
-        .then((data) =>
-          setTasks((prevTasks) => ({
-            ...prevTasks,
-            [userId]: data, // Asegúrate de que data es un array
-          }))
-        )
-        .catch((err) => console.error(err));
+      try {
+        const response = await fetch(
+          `http://localhost:9090/tasks/user/${userId}`
+        );
+        const data = await response.json();
+        setTasks((prevTasks) => ({
+          ...prevTasks,
+          [userId]: data, // Asegúrate de que data es un array
+        }));
+      } catch (err) {
+        console.error(err);
+      }
     }
   };
 
@@ -157,7 +164,9 @@ export const UserList = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Lista de Usuarios</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">
+        Lista de Usuarios
+      </h1>
 
       {/* Formulario para agregar un nuevo usuario */}
       <form
@@ -269,7 +278,7 @@ export const UserList = () => {
                       </table>
                     ) : (
                       <p className="text-center text-gray-600 py-4">
-                        Cargando tareas...
+                        No hay tareas para mostrar...
                       </p>
                     )}
                   </td>
