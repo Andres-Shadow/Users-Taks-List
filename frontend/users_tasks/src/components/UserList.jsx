@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 
 export const UserList = () => {
-  const [users, setUsers] = useState([]); // Inicializa como un array
-  const [tasks, setTasks] = useState({}); // Inicializa como un objeto
+  const [users, setUsers] = useState([]);
+  const [tasks, setTasks] = useState({});
   const [expandedUser, setExpandedUser] = useState(null);
-  const [showTaskForm, setShowTaskForm] = useState(null); // Estado para mostrar el formulario de agregar tarea
-  const [newTask, setNewTask] = useState({ title: "", description: "" }); // Estado para los campos del formulario
+  const [showTaskForm, setShowTaskForm] = useState(null);
+  const [newTask, setNewTask] = useState({ title: "", description: "" });
+  const [newUser, setNewUser] = useState({ firstname: "", lastname: "", email: "" });
 
   // Fetch users on component mount
   useEffect(() => {
@@ -122,32 +123,112 @@ export const UserList = () => {
     hideAddTaskForm(); // Oculta el formulario tras agregar la tarea
   };
 
+  const handleUserFormChange = (e) => {
+    const { name, value } = e.target;
+    setNewUser((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleAddUser = (e) => {
+    e.preventDefault();
+    const body = JSON.stringify({
+      Firstname: newUser.firstname,
+      Lastname: newUser.lastname,
+      Email: newUser.email,
+    });
+
+    fetch("http://localhost:9090/users", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body,
+    })
+      .then((res) => {
+        if (res.ok) {
+          return res.json();
+        }
+        throw new Error("Failed to add user");
+      })
+      .then((data) => {
+        setUsers([...users, data]);
+        setNewUser({ firstname: "", lastname: "", email: "" });
+      });
+  };
+
   return (
-    <div>
-      <h1>Lista de Usuarios</h1>
-      <table>
-        <thead>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">Lista de Usuarios</h1>
+
+      {/* Formulario para agregar un nuevo usuario */}
+      <form
+        className="w-full max-w-4xl mb-8 bg-white p-6 shadow-md rounded-lg"
+        onSubmit={handleAddUser}
+      >
+        <div className="flex flex-col md:flex-row gap-4">
+          <input
+            type="text"
+            name="firstname"
+            value={newUser.firstname}
+            onChange={handleUserFormChange}
+            placeholder="Nombre"
+            className="flex-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+          <input
+            type="text"
+            name="lastname"
+            value={newUser.lastname}
+            onChange={handleUserFormChange}
+            placeholder="Apellido"
+            className="flex-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+          <input
+            type="email"
+            name="email"
+            value={newUser.email}
+            onChange={handleUserFormChange}
+            placeholder="Correo"
+            className="flex-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+          <button
+            type="submit"
+            className="bg-blue-500 text-white rounded-full px-4 py-2 hover:bg-blue-600 transition-colors"
+          >
+            Agregar Usuario
+          </button>
+        </div>
+      </form>
+      <table className="table-auto w-full max-w-4xl bg-white shadow-md rounded-lg overflow-hidden">
+        <thead className="bg-blue-600 text-white">
           <tr>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>Correo</th>
-            <th>Acciones</th>
+            <th className="py-2 px-4 text-left">Nombre</th>
+            <th className="py-2 px-4 text-left">Apellido</th>
+            <th className="py-2 px-4 text-left">Correo</th>
+            <th className="py-2 px-4 text-center">Acciones</th>
           </tr>
         </thead>
         <tbody>
           {users.map((user) => (
             <React.Fragment key={user.ID}>
-              <tr>
-                <td>{user.Firstname}</td>
-                <td>{user.Lastname}</td>
-                <td>{user.Email}</td>
-                <td>
-                  <button onClick={() => handleUserClick(user.ID)}>
+              <tr className="border-b hover:bg-gray-50 transition-colors">
+                <td className="py-2 px-4">{user.Firstname}</td>
+                <td className="py-2 px-4">{user.Lastname}</td>
+                <td className="py-2 px-4">{user.Email}</td>
+                <td className="py-2 px-4 flex items-center justify-center gap-2">
+                  <button
+                    className="bg-blue-500 text-white rounded-full px-4 py-1 hover:bg-blue-600 transition-colors"
+                    onClick={() => handleUserClick(user.ID)}
+                  >
                     {expandedUser === user.ID
                       ? "Ocultar Tareas"
                       : "Mostrar Tareas"}
                   </button>
-                  <button onClick={() => showAddTaskForm(user.ID)}>
+                  <button
+                    className="bg-green-500 text-white rounded-full px-4 py-1 hover:bg-green-600 transition-colors"
+                    onClick={() => showAddTaskForm(user.ID)}
+                  >
                     Agregar Tarea
                   </button>
                 </td>
@@ -156,21 +237,25 @@ export const UserList = () => {
                 <tr>
                   <td colSpan="4">
                     {Array.isArray(tasks[user.ID]) ? (
-                      <table className="subtable">
-                        <thead>
+                      <table className="table-auto w-full mt-4 bg-gray-50 shadow-inner rounded-lg">
+                        <thead className="bg-gray-200">
                           <tr>
-                            <th>Tarea</th>
-                            <th>Descripción</th>
-                            <th>Acciones</th>
+                            <th className="py-2 px-4 text-left">Tarea</th>
+                            <th className="py-2 px-4 text-left">Descripción</th>
+                            <th className="py-2 px-4 text-center">Acciones</th>
                           </tr>
                         </thead>
                         <tbody>
                           {tasks[user.ID].map((task) => (
-                            <tr key={task.ID}>
-                              <td>{task.Title}</td>
-                              <td>{task.Description}</td>
-                              <td>
+                            <tr
+                              key={task.ID}
+                              className="border-b hover:bg-gray-100 transition-colors"
+                            >
+                              <td className="py-2 px-4">{task.Title}</td>
+                              <td className="py-2 px-4">{task.Description}</td>
+                              <td className="py-2 px-4 text-center">
                                 <button
+                                  className="bg-yellow-500 text-white rounded-full px-3 py-1 hover:bg-yellow-600 transition-colors"
                                   onClick={() =>
                                     markTaskAsCompleted(task.ID, user.ID)
                                   }
@@ -183,44 +268,64 @@ export const UserList = () => {
                         </tbody>
                       </table>
                     ) : (
-                      <p>Cargando tareas...</p>
+                      <p className="text-center text-gray-600 py-4">
+                        Cargando tareas...
+                      </p>
                     )}
                   </td>
                 </tr>
               )}
               {showTaskForm === user.ID && (
                 <tr>
-                  <td colSpan="4">
+                  <td colSpan="4" className="bg-gray-50 p-4">
                     <form
+                      className="flex flex-col gap-4"
                       onSubmit={(e) => {
                         e.preventDefault();
                         handleAddTask(user.ID);
                       }}
                     >
-                      <div>
-                        <label>Título:</label>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700">
+                          Título:
+                        </label>
                         <input
                           type="text"
                           name="title"
                           value={newTask.title}
                           onChange={handleInputChange}
                           required
+                          className="mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                       </div>
-                      <div>
-                        <label>Descripción:</label>
+                      <div className="flex flex-col">
+                        <label className="text-sm font-semibold text-gray-700">
+                          Descripción:
+                        </label>
                         <input
                           type="text"
                           name="description"
                           value={newTask.description}
                           onChange={handleInputChange}
                           required
+                          className="mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                       </div>
-                      <button type="submit">Agregar</button>
-                      <button type="button" onClick={hideAddTaskForm}>
-                        Cancelar
-                      </button>
+                      <div className="flex gap-4">
+                        <button
+                          type="submit"
+                          className="bg-green-500 text-white rounded-full px-4 py-2 hover:bg-green-600 transition-colors"
+                        >
+                          Agregar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={hideAddTaskForm}
+                          className="bg-red-500 text-white rounded-full px-4 py-2 hover:bg-red-600 transition-colors"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
                     </form>
                   </td>
                 </tr>
