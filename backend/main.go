@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"users_task_backend/db"
@@ -8,10 +9,13 @@ import (
 	"users_task_backend/routes"
 
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	"github.com/rs/cors"
 )
 
 func main() {
+
+	godotenv.Load(".env")
 
 	db.DBConnection()
 	db.DATABASE.AutoMigrate(models.Task{})
@@ -42,6 +46,7 @@ func main() {
 
 	// Envolver el router con el middleware de CORS
 	handler := c.Handler(r)
-
+	fmt.Println("Server running on port 9090")
 	http.ListenAndServe(":9090", handler)
+
 }

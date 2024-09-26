@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 export const UserList = () => {
+  const BACKEND_SERVER = import.meta.env.PUBLIC_BACKEND_SERVER;
   const [users, setUsers] = useState([]);
   const [tasks, setTasks] = useState({});
   const [expandedUser, setExpandedUser] = useState(null);
@@ -16,9 +17,12 @@ export const UserList = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch("http://localhost:9090/users", {
-          method: "GET",
-        });
+        const response = await fetch(
+          "http://" + BACKEND_SERVER + ":9090/users",
+          {
+            method: "GET",
+          }
+        );
         const data = await response.json();
         setUsers(data); // Asegúrate de que data es un array
       } catch (err) {
@@ -35,7 +39,7 @@ export const UserList = () => {
     if (!tasks[userId]) {
       try {
         const response = await fetch(
-          `http://localhost:9090/tasks/user/${userId}`
+          `http://` + BACKEND_SERVER + `:9090/tasks/user/${userId}`
         );
         const data = await response.json();
         setTasks((prevTasks) => ({
@@ -62,7 +66,7 @@ export const UserList = () => {
   const markTaskAsCompleted = (taskId, userId) => {
     console.log(`Task ${taskId} completed for user ${userId}`);
     // Delete task from backend
-    fetch(`http://localhost:9090/tasks/${taskId}`, {
+    fetch(`http://` + BACKEND_SERVER + `:9090/tasks/${taskId}`, {
       method: "DELETE",
     })
       .then((res) => {
@@ -105,7 +109,7 @@ export const UserList = () => {
       UserID: userId,
     });
 
-    fetch("http://localhost:9090/tasks", {
+    fetch("http://" + BACKEND_SERVER + ":9090/tasks", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -136,7 +140,7 @@ export const UserList = () => {
 
   const deleteUser = (userId) => {
     console.log("Deleting user:", userId);
-    fetch(`http://localhost:9090/users/${userId}`, {
+    fetch(`http://` + BACKEND_SERVER + `:9090/users/${userId}`, {
       method: "DELETE",
     })
       .then((res) => {
@@ -162,7 +166,7 @@ export const UserList = () => {
       Email: newUser.email,
     });
 
-    fetch("http://localhost:9090/users", {
+    fetch("http://" + BACKEND_SERVER + ":9090/users", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

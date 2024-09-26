@@ -35,6 +35,7 @@ func GetUserTasksHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	db.DATABASE.Where("user_id = ?", params["id"]).Find(&tasks)
 	if len(tasks) == 0 {
+		//retorna un array vacio
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("Tasks not found"))
 		return

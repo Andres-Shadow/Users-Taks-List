@@ -2,6 +2,7 @@ package db
 
 import (
 	"log"
+	"os"
 	"time"
 
 	"gorm.io/driver/mysql"
@@ -12,9 +13,8 @@ import (
 var DATABASE *gorm.DB
 
 func DBConnection() {
-	host := "localhost"
-
-	dbPassword := "andres_1"
+	host := os.Getenv("DATABASE_HOST")
+	dbPassword := os.Getenv("DATABASE_ROOT_PASSWORD")
 	dbUser := "root"
 
 	var dsn = dbUser + ":" + dbPassword + "@tcp(" + host + ":3306)/users_tasks?charset=utf8mb4&parseTime=True&loc=Local"
