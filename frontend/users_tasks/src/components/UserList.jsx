@@ -274,7 +274,8 @@ export const UserList = () => {
               {expandedUser === user.ID && (
                 <tr>
                   <td colSpan="4">
-                    {Array.isArray(tasks[user.ID]) ? (
+                    {Array.isArray(tasks[user.ID]) &&
+                    tasks[user.ID].length > 0 ? (
                       <table className="table-auto w-full mt-4 bg-gray-50 shadow-inner rounded-lg">
                         <thead className="bg-gray-200">
                           <tr>
@@ -307,7 +308,7 @@ export const UserList = () => {
                       </table>
                     ) : (
                       <p className="text-center text-gray-600 py-4">
-                        No hay tareas para mostrar...
+                        No hay tareas para este usuario.
                       </p>
                     )}
                   </td>
